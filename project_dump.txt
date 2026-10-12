@@ -1,0 +1,489 @@
+]633;E;{ echo "=== CẤU TRÚC THƯ MỤC ==="\x3b find . -maxdepth 3 -not -path '*/.*' -not -path './venv*'\x3b echo ""\x3b echo "=== NỘI DUNG CÁC FILE ==="\x3b head -n 1000 data/* src/* requirements.txt .gitignore Makefile README.md 2>/dev/null\x3b } > project_dump.txt;eb1b2956-6b13-4648-a797-12da31ccfe01]633;C=== CẤU TRÚC THƯ MỤC ===
+.
+./ai-usage.md
+./data
+./data/DOC0007_EXEMPT_2024.md
+./data/DOC0008_EXEMPT_2026.md
+./data/DOC0009_CURRICULUM_IT.md
+./logs
+./Makefile
+./project_dump.txt
+./prompts
+./prompts/system_prompt.txt
+./README.md
+./requirements.txt
+./src
+./src/agent.py
+./src/mcp_server.py
+./src/rag.py
+./src/schemas.py
+./src/__init__.py
+./src/__pycache__
+./src/__pycache__/agent.cpython-311.pyc
+./src/__pycache__/mcp_server.cpython-311.pyc
+./src/__pycache__/rag.cpython-311.pyc
+./src/__pycache__/schemas.cpython-311.pyc
+./src/__pycache__/__init__.cpython-311.pyc
+./tests
+./tests/testset.jsonl
+
+=== NỘI DUNG CÁC FILE ===
+==> data/DOC0007_EXEMPT_2024.md <==
+---
+doc_id: DOC0007
+title: Quy định xét miễn môn học và công nhận tín chỉ tương đương (Phiên bản cũ)
+version: 1.0
+date: 2024-01-15
+owner: Phong_Dao_Tao
+---
+
+# QUY ĐỊNH MIỄN MÔN HỌC NGOẠI NGỮ NĂM 2024
+
+## Điều 1. Công nhận chứng chỉ tiếng Anh IELTS
+1. Chứng chỉ IELTS Academic phải còn thời hạn 02 năm tính đến ngày nộp hồ sơ.
+2. Mức quy đổi tín chỉ:
+   - IELTS 5.5: Miễn học phần Tiếng Anh 1 (mã HP: ENG101, 3 tín chỉ), điểm ghi nhận 8.0.
+   - IELTS 6.0 trở lên: Miễn học phần Tiếng Anh 1 (ENG101, 3 tín chỉ) và Tiếng Anh 2 (ENG102, 3 tín chỉ), điểm ghi nhận 8.5.
+   - Bản quy chế 2024 chưa áp dụng miễn học phần Tiếng Anh 3 bằng chứng chỉ IELTS.
+
+## Điều 2. Giới hạn số tín chỉ
+- Tổng số tín chỉ được miễn giảm tối đa không vượt quá 10 tín chỉ trong toàn khóa học.
+==> data/DOC0008_EXEMPT_2026.md <==
+---
+doc_id: DOC0008
+title: Quy chế sửa đổi, bổ sung xét miễn môn học và chuyển đổi tín chỉ
+version: 2.0
+date: 2026-01-10
+owner: Phong_Dao_Tao
+---
+
+# QUY CHẾ MIỄN MÔN HỌC VÀ CHUYỂN ĐỔI TÍN CHỈ NĂM 2026
+
+## Điều 1. Cập nhật bảng quy đổi chứng chỉ Ngoại ngữ
+1. Quy chế này thay thế và bãi bỏ các quy định về xét miễn ngoại ngữ tại DOC0007 từ ngày 10/01/2026.
+2. Mức quy đổi chứng chỉ IELTS Academic mới:
+   - IELTS 6.0: Miễn Tiếng Anh 1 (ENG101, 3 tín chỉ) và Tiếng Anh 2 (ENG102, 3 tín chỉ), điểm ghi nhận 8.5.
+   - IELTS 6.5 trở lên: Miễn Tiếng Anh 1 (ENG101, 3 tín chỉ), Tiếng Anh 2 (ENG102, 3 tín chỉ), và Tiếng Anh 3 (ENG103, 3 tín chỉ), điểm ghi nhận 9.0.
+
+## Điều 2. Quy đổi chứng chỉ Chuyên môn Công nghệ Thông tin
+1. Sinh viên có chứng chỉ điện toán đám mây AWS Certified Cloud Practitioner còn hiệu lực:
+   - Miễn môn Điện toán đám mây (mã HP: IT305, 3 tín chỉ), điểm ghi nhận 9.0.
+2. Sinh viên có chứng chỉ AWS Certified Solutions Architect - Associate:
+   - Miễn môn Điện toán đám mây nâng cao (mã HP: IT405, 3 tín chỉ), điểm ghi nhận 9.5.
+
+## Điều 3. Hạn mức công nhận (Quy tắc mức trần)
+1. Tổng số tín chỉ được xét miễn giảm và công nhận chuyển đổi trong toàn khóa học tối đa là 15 tín chỉ (capping rule).
+2. Nếu sinh viên nộp hồ sơ có tổng số tín chỉ vượt quá 15, hội đồng chỉ ghi nhận đúng 15 tín chỉ theo mức trần.
+
+## Điều 4. Điều kiện hợp lệ của hồ sơ
+1. Chứng chỉ phải còn thời hạn tối thiểu 30 ngày tính đến ngày nộp đơn xét duyệt.
+2. Bắt buộc phải có ngày cấp (issue_date) và điểm số/chứng nhận đính kèm. Mọi hồ sơ thiếu 1 trong các thông tin trên sẽ bị từ chối do không đủ dữ liệu suy luận.
+==> data/DOC0009_CURRICULUM_IT.md <==
+---
+doc_id: DOC0009
+title: Khung chương trình đào tạo cử nhân Công nghệ Thông tin
+version: 1.0
+date: 2025-08-20
+owner: Khoa_CNTT
+---
+
+# DANH MỤC HỌC PHẦN ĐÀO TẠO NGÀNH CNTT
+
+## 1. Khối kiến thức Ngoại ngữ
+- ENG101: Tiếng Anh 1 (3 tín chỉ, bắt buộc)
+- ENG102: Tiếng Anh 2 (3 tín chỉ, bắt buộc)
+- ENG103: Tiếng Anh 3 (3 tín chỉ, bắt buộc)
+
+## 2. Khối kiến thức Chuyên ngành
+- IT305: Điện toán đám mây cơ bản (3 tín chỉ, tự chọn chuyên ngành)
+- IT405: Kiến trúc đám mây nâng cao (3 tín chỉ, chuyên sâu)
+- IT101: Nhập môn lập trình (4 tín chỉ, bắt buộc - không áp dụng miễn giảm qua chứng chỉ nghề)
+==> src/__init__.py <==
+"""
+AIPR Credit Transfer Assistant
+Package initialization.
+"""
+
+__version__ = "0.1.0"
+
+
+==> src/__pycache__ <==
+
+==> src/agent.py <==
+"""
+Custom Agent Loop for Credit Transfer Assistant.
+(Giai đoạn 4: Tự viết vòng lặp có MAX_STEPS, bắt lỗi an toàn, ghi log USAGE)
+"""
+
+from datetime import datetime
+from pathlib import Path
+from src.schemas import AgentStepRecord, RunTrace, TokenUsage
+
+MAX_STEPS = 6
+
+
+class CreditTransferAgent:
+    """Agent điều phối tư vấn và xét miễn môn học / chuyển đổi tín chỉ."""
+
+    def __init__(self, system_prompt_path: str = "prompts/system_prompt.txt"):
+        self.system_prompt = self._load_system_prompt(system_prompt_path)
+
+    def _load_system_prompt(self, path_str: str) -> str:
+        prompt_path = Path(path_str)
+        if prompt_path.exists():
+            return prompt_path.read_text(encoding="utf-8")
+        return "Bạn là trợ lý AI xét miễn môn học và chuyển đổi tín chỉ."
+
+    def run(self, user_query: str) -> RunTrace:
+        trace = RunTrace(
+            run_id="demo-001",
+            timestamp=datetime.now().isoformat(),
+            query=user_query,
+            final_answer="Khung Agent đã sẵn sàng cho Giai đoạn 2, 3, 4.",
+            steps=[
+                AgentStepRecord(
+                    step_number=1,
+                    thought="Kiểm tra kết nối schema thành công.",
+                    action_tool="none"
+                )
+            ],
+            usage=TokenUsage(prompt_tokens=0, completion_tokens=0, total_tokens=0, calls=0)
+        )
+        return trace
+
+
+if __name__ == "__main__":
+    agent = CreditTransferAgent()
+    result = agent.run("Em có IELTS 6.5 thì được miễn những môn nào theo quy chế 2026?")
+    print("Run ID:", result.run_id)
+    print("Answer:", result.final_answer)
+
+==> src/mcp_server.py <==
+"""
+MCP Server & Tools for Credit Transfer Assistant.
+(Giai đoạn 3: Chạy qua stdio, có Write Tool gây side-effect và Read Tool để verify)
+"""
+
+from typing import List
+from mcp.server.fastmcp import FastMCP
+from src.schemas import ExemptionRequestInput, ToolExecutionResult
+
+mcp = FastMCP("CreditTransferAssistantServer")
+
+
+@mcp.tool()
+def submit_exemption_request(
+    student_id: str,
+    cert_name: str,
+    cert_score: float,
+    issue_date: str,
+    course_codes: List[str],
+    notes: str = ""
+) -> str:
+    """
+    [WRITE TOOL - Có Side Effect] Ghi nhận hồ sơ xin xét miễn môn học vào cơ sở dữ liệu.
+    """
+    req = ExemptionRequestInput(
+        student_id=student_id,
+        cert_name=cert_name,
+        cert_score=cert_score,
+        issue_date=issue_date,
+        course_codes=course_codes,
+        notes=notes
+    )
+    # Giai đoạn 3 sẽ lưu thật vào database.json
+    res = ToolExecutionResult(
+        success=True,
+        data={"ticket_id": "REQ-2026-001", "status": "PENDING", "student_id": req.student_id}
+    )
+    return res.to_agent_string()
+
+
+@mcp.tool()
+def verify_exemption_status(ticket_id: str) -> str:
+    """
+    [READ TOOL - Bước Verify bắt buộc] Đọc lại hồ sơ từ hệ thống để xác nhận trạng thái đã lưu.
+    """
+    res = ToolExecutionResult(
+        success=True,
+        data={"ticket_id": ticket_id, "verified": True, "status": "PENDING"}
+    )
+    return res.to_agent_string()
+
+
+if __name__ == "__main__":
+    mcp.run()
+
+==> src/rag.py <==
+"""
+RAG Pipeline for Credit Transfer Assistant.
+(Giai đoạn 2: Dense + Hybrid BM25 Search)
+"""
+
+from pathlib import Path
+from typing import List, Optional
+from src.schemas import DocumentChunk, DocumentMetadata
+
+
+class CreditTransferRAG:
+    """Pipeline tìm kiếm quy chế xét miễn môn và chuyển đổi tín chỉ."""
+
+    def __init__(self, data_dir: str = "data"):
+        self.data_dir = Path(data_dir)
+        self.chunks: List[DocumentChunk] = []
+
+    def retrieve(
+        self, query: str, top_k: int = 3, mode: str = "hybrid", version_filter: Optional[str] = None
+    ) -> List[DocumentChunk]:
+        """Truy xuất top_k đoạn quy chế (hỗ trợ dense và hybrid BM25)."""
+        # Sẽ triển khai chi tiết ở Giai đoạn 2
+        return []
+
+
+if __name__ == "__main__":
+    rag = CreditTransferRAG()
+    print("CreditTransferRAG initialized successfully.")
+
+==> src/schemas.py <==
+from dataclasses import dataclass, field
+from typing import Optional, List, Dict, Any
+
+
+@dataclass
+class DocumentMetadata:
+    doc_id: str
+    title: str
+    version: str
+    date: str
+    owner: str
+
+
+@dataclass
+class DocumentChunk:
+    chunk_id: str
+    doc_id: str
+    content: str
+    metadata: DocumentMetadata
+    score: float = 0.0
+
+
+@dataclass
+class ExemptionRequestInput:
+    student_id: str
+    cert_name: str
+    cert_score: float
+    issue_date: str
+    course_codes: List[str]
+    notes: Optional[str] = None
+
+
+@dataclass
+class ToolExecutionResult:
+    success: bool
+    data: Optional[Dict[str, Any]] = None
+    error_message: Optional[str] = None
+
+    def to_agent_string(self) -> str:
+        """Trả về chuỗi kết quả an toàn cho LLM đọc, không raise exception."""
+        if not self.success:
+            return f"Error: {self.error_message}"
+        return f"Success: {self.data}"
+
+
+@dataclass
+class TokenUsage:
+    prompt_tokens: int = 0
+    completion_tokens: int = 0
+    total_tokens: int = 0
+    calls: int = 0
+
+
+@dataclass
+class AgentStepRecord:
+    step_number: int
+    thought: str
+    action_tool: Optional[str] = None
+    action_input: Optional[Dict[str, Any]] = None
+    tool_output: Optional[str] = None
+
+
+@dataclass
+class RunTrace:
+    run_id: str
+    timestamp: str
+    query: str
+    final_answer: str
+    steps: List[AgentStepRecord] = field(default_factory=list)
+    usage: TokenUsage = field(default_factory=TokenUsage)
+==> requirements.txt <==
+openai>=1.30.0
+mcp>=1.0.0,<2
+rank-bm25>=0.2.2
+numpy>=1.24.0
+pandas>=2.0.0
+python-dotenv>=1.0.0
+
+==> .gitignore <==
+venv/
+.venv/
+__pycache__/
+*.pyc
+.env
+logs/*.jsonl
+*.db
+
+==> Makefile <==
+.PHONY: help setup demo run server eval clean
+
+help:
+	@echo Available commands:
+	@echo   make setup      - Install dependencies from requirements.txt
+	@echo   make demo       - Run the assistant agent demo
+	@echo   make server     - Start the MCP server
+	@echo   make eval       - Run evaluation on testset.jsonl
+	@echo   make clean      - Clean temporary cache files
+
+setup:
+	pip install -r requirements.txt
+
+demo:
+	python -m src.agent
+
+run: demo
+
+server:
+	python -m src.mcp_server
+
+eval:
+	python -m src.agent
+
+clean:
+	python -c "import shutil, pathlib; [shutil.rmtree(p) for p in pathlib.Path('.').rglob('__pycache__')]"
+
+==> README.md <==
+# AIPR Credit Transfer Assistant
+
+Hệ thống trợ lý AI hỗ trợ tư vấn, thẩm định và xét duyệt chuyển đổi / công nhận tín chỉ học phần dựa trên quy chế đào tạo đại học, áp dụng kiến trúc **RAG**, chuẩn **Model Context Protocol (MCP)** và **Custom Agent Loop**.
+
+---
+
+## 🏛️ Kiến Trúc Hệ Thống & Các Giai Đoạn
+
+Dự án được xây dựng tuần tự theo 4 giai đoạn chuẩn:
+
+```
+[ Sinh viên gửi yêu cầu / Đề cương ]
+                 │
+                 ▼
+     ┌───────────────────────┐
+     │  Custom Agent Loop    │ ◄── Giai đoạn 4 (`src/agent.py`)
+     │  (Suy luận & Điều phối)│
+     └───────────┬───────────┘
+                 │
+        gọi tools qua MCP
+                 ▼
+     ┌───────────────────────┐
+     │      MCP Server       │ ◄── Giai đoạn 3 (`src/mcp_server.py`)
+     │  (Các tools chuẩn hóa)│
+     └───────────┬───────────┘
+                 │
+                 ├──────────────────────────────┐
+                 ▼                              ▼
+     ┌───────────────────────┐      ┌───────────────────────┐
+     │     RAG Pipeline      │      │ Syllabus Matcher      │
+     │ (`src/rag.py`)        │      │ (Đối sánh đề cương)   │
+     │ ◄── Giai đoạn 2       │      └───────────────────────┘
+     └───────────┬───────────┘
+                 │
+                 ▼
+     ┌───────────────────────┐
+     │ Corpus Quy chế (data/)│ ◄── Giai đoạn 1 (`data/`, `src/schemas.py`)
+     └───────────────────────┘
+```
+
+1. **Giai đoạn 1 - Chuẩn bị & Data Contracts**:
+   - Khởi tạo thư mục và các hợp đồng dữ liệu (`src/schemas.py`) bằng `@dataclass`.
+   - Thu thập 3 file quy chế đào tạo vào thư mục `data/`.
+   - Thiết lập `prompts/system_prompt.txt` và bộ ca kiểm thử `tests/testset.jsonl`.
+2. **Giai đoạn 2 - RAG Pipeline (`src/rag.py`)**:
+   - Phân đoạn (chunking), đánh chỉ mục (vector indexing) văn bản quy chế.
+   - Truy xuất thông tin (retrieval) chính xác theo điều khoản.
+3. **Giai đoạn 3 - MCP Server & Tools (`src/mcp_server.py`)**:
+   - Đóng gói các chức năng thành tool của Model Context Protocol.
+   - Bao gồm: tìm kiếm quy chế, tính độ tương đồng đề cương, đánh giá điều kiện tiên quyết.
+4. **Giai đoạn 4 - Custom Agent Loop (`src/agent.py`)**:
+   - Vòng lặp tác tử tự trị (Thought -> Action -> Observation).
+   - Tự động gọi tool, phân tích kết quả và xuất báo cáo thẩm định, lưu trace vào `logs/`.
+
+---
+
+## 📁 Cấu Trúc Dự Án
+
+```
+aipr-credit-transfer-assistant/
+├── data/                  # Chứa 3 file tài liệu quy chế (corpus)
+├── src/                   # Toàn bộ mã nguồn Python
+│   ├── __init__.py
+│   ├── schemas.py         # Khai báo @dataclass cho data contracts
+│   ├── rag.py             # Pipeline tìm kiếm (xây ở giai đoạn 2)
+│   ├── mcp_server.py      # MCP Server & tools (xây ở giai đoạn 3)
+│   └── agent.py           # Custom Agent Loop (xây ở giai đoạn 4)
+├── prompts/               # Prompt hệ thống tách riêng khỏi code
+│   └── system_prompt.txt
+├── tests/                 # Bộ testset kiểm thử
+│   └── testset.jsonl
+├── logs/                  # Chứa các file trace jsonl khi chạy thật
+├── Makefile               # Lệnh chạy tự động (setup, demo, eval)
+├── requirements.txt       # Danh sách thư viện
+├── .env.example           # File mẫu chứa API key
+├── ai-usage.md            # Kê khai sử dụng AI
+└── README.md              # Hướng dẫn chạy và kiến trúc
+```
+
+---
+
+## 🚀 Hướng Dẫn Cài Đặt & Sử Dụng
+
+### 1. Cài đặt môi trường
+Khởi tạo môi trường ảo Python và cài đặt các phụ thuộc:
+
+```bash
+# Tạo và kích hoạt virtual environment
+python -m venv venv
+
+# Kích hoạt trên Windows PowerShell:
+.\venv\Scripts\Activate.ps1
+# Hoặc trên Command Prompt:
+# .\venv\Scripts\activate.bat
+
+# Cài đặt thư viện:
+make setup
+# Hoặc: pip install -r requirements.txt
+```
+
+### 2. Thiết lập biến môi trường
+Sao chép `.env.example` thành `.env` và cập nhật khóa API:
+```bash
+cp .env.example .env
+```
+Cấu hình các API key:
+```env
+GEMINI_API_KEY="your-gemini-api-key"
+OPENAI_API_KEY="your-openai-api-key"
+```
+
+### 3. Vận hành hệ thống
+Sử dụng `Makefile` để thực thi nhanh các tác vụ:
+- **Chạy thử Agent demo**:
+  ```bash
+  make demo
+  ```
+- **Khởi động MCP Server**:
+  ```bash
+  make server
+  ```
+- **Chạy kiểm thử đánh giá**:
+  ```bash
+  make eval
+  ```
+

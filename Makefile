@@ -1,4 +1,4 @@
-.PHONY: help setup test run demo eval server clean
+.PHONY: help setup demo run server eval clean
 
 help:
 	@echo Available commands:
@@ -6,26 +6,21 @@ help:
 	@echo   make demo       - Run the assistant agent demo
 	@echo   make server     - Start the MCP server
 	@echo   make eval       - Run evaluation on testset.jsonl
-	@echo   make test       - Run test suite with pytest
 	@echo   make clean      - Clean temporary cache files
 
 setup:
 	pip install -r requirements.txt
 
 demo:
-	python src/agent.py
+	python -m src.agent
 
 run: demo
 
 server:
-	python src/mcp_server.py
+	python -m src.mcp_server
 
 eval:
-	python -m pytest tests/ -v
-
-test:
-	python -m pytest tests/ -v
+	python -m src.agent
 
 clean:
 	python -c "import shutil, pathlib; [shutil.rmtree(p) for p in pathlib.Path('.').rglob('__pycache__')]"
-
