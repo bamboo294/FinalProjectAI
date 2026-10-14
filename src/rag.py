@@ -38,7 +38,6 @@ class CreditTransferRAG:
         self._build_indices()
 
     def _tokenize(self, text: str) -> List[str]:
-        """Tách từ cơ bản hỗ trợ cả tiếng Việt và mã học phần (ENG101, IT305, 6.5)."""
         text = text.lower()
         tokens = re.findall(
             r"[a-z0-9àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ\.]+",
@@ -47,7 +46,6 @@ class CreditTransferRAG:
         return [t.strip(".") for t in tokens if t.strip(".")]
 
     def _parse_markdown_file(self, file_path: Path) -> tuple[DocumentMetadata, str]:
-        """Bóc tách YAML frontmatter metadata và phần thân văn bản."""
         raw_text = file_path.read_text(encoding="utf-8")
         meta_dict = {
             "doc_id": file_path.stem,
@@ -78,13 +76,11 @@ class CreditTransferRAG:
         return metadata, body
 
     def _load_and_chunk_corpus(self) -> None:
-        """Đọc các file .md trong data/ và cắt chunk theo từng mục '## '."""
         self.chunks = []
         if not self.data_dir.exists():
             return
 
-        md_files = sorted(self.data_dir.glob("*.md"))
-        for file_path in md_files:
+        for file_path in sorted(self.data_dir.glob("*.md")):
             metadata, body = self._parse_markdown_file(file_path)
             sections = re.split(r"(?=\n## )", "\n" + body)
 
@@ -100,24 +96,24 @@ class CreditTransferRAG:
 
                 chunk_idx += 1
                 full_content = (
-                    f"[{metadata.doc_id} | v{metadata.version} | {metadata.date}]\n"
+                    f"[{metadata.doc_id} | v{metadata.version} | {metadata.date} | owner:{metadata.owner}]\n"
                     f"{doc_header}\n{sec_clean}".strip()
                 )
-                chunk = DocumentChunk(
-                    chunk_id=f"{metadata.doc_id}_C{chunk_idx:02d}",
-                    doc_id=metadata.doc_id,
-                    content=full_content,
-                    metadata=metadata,
-                    score=0.0
+                self.chunks.append(
+                    DocumentChunk(
+                        chunk_id=f"{metadata.doc_id}_C{chunk_idx:02d}",
+                        doc_id=metadata.doc_id,
+                        content=full_content,
+                        metadata=metadata,
+                        score=0.0
+                    )
                 )
-                self.chunks.append(chunk)
 
     def _compute_dense_vectors(self, texts: List[str]) -> np.ndarray:
-        """Tính vector biểu diễn văn bản (OpenAI API hoặc Local Character/Word N-gram Embedding)."""
         if self.use_api_embedding:
             try:
                 from openai import OpenAI
-                client = OpenAI()
+                client = OpenAI(timeout=10.0, max_retries=2)
                 resp = client.embeddings.create(model="text-embedding-3-small", input=texts)
                 vecs = np.array([item.embedding for item in resp.data], dtype=np.float32)
                 norms = np.linalg.norm(vecs, axis=1, keepdims=True) + 1e-10
@@ -125,7 +121,6 @@ class CreditTransferRAG:
             except Exception:
                 pass
 
-        # Fallback Deterministic Dense Vectorizer (chạy 100% offline)
         if not self.vocab:
             all_tokens = set()
             for t in texts:
@@ -148,7 +143,6 @@ class CreditTransferRAG:
         return vecs / norms
 
     def _build_indices(self) -> None:
-        """Khởi tạo chỉ mục BM25 và Dense Embeddings."""
         if not self.chunks:
             return
         tokenized_corpus = [self._tokenize(c.content) for c in self.chunks]
@@ -164,23 +158,15 @@ class CreditTransferRAG:
         version_filter: Optional[str] = None,
         owner_filter: Optional[str] = None
     ) -> List[DocumentChunk]:
-        """
-        Truy xuất top_k đoạn quy chế.
-        - mode: 'dense', 'bm25', hoặc 'hybrid' (mặc định: 'hybrid')
-        - version_filter: lọc theo phiên bản tài liệu (điểm cộng Metadata Filter)
-        """
         if not self.chunks or self.bm25 is None or self.dense_embeddings is None:
             return []
 
-        # 1. Tính điểm Dense Search (Cosine Similarity)
         q_vec = self._compute_dense_vectors([query])[0]
         dense_scores = np.dot(self.dense_embeddings, q_vec)
 
-        # 2. Tính điểm Sparse Search (BM25)
         q_tokens = self._tokenize(query)
         bm25_scores = np.array(self.bm25.get_scores(q_tokens), dtype=np.float32)
 
-        # Chuẩn hóa Min-Max về [0, 1] để kết hợp công bằng
         def _normalize(arr: np.ndarray) -> np.ndarray:
             min_v, max_v = float(np.min(arr)), float(np.max(arr))
             if max_v - min_v < 1e-9:
@@ -197,7 +183,6 @@ class CreditTransferRAG:
         else:
             final_scores = alpha * dense_norm + (1.0 - alpha) * bm25_norm
 
-        # 3. Áp dụng Metadata Filter và gom kết quả
         results: List[DocumentChunk] = []
         for idx, chunk in enumerate(self.chunks):
             if version_filter and chunk.metadata.version != str(version_filter):
@@ -221,16 +206,6 @@ class CreditTransferRAG:
 
 if __name__ == "__main__":
     rag = CreditTransferRAG()
-    print(f"Loaded {len(rag.chunks)} chunks from corpus.")
-
-    print("\n--- TEST 1: Hybrid Search (IELTS 6.5) ---")
+    print(f"Loaded {len(rag.chunks)} chunks.")
     for c in rag.retrieve("IELTS 6.5 được miễn môn gì?", top_k=2, mode="hybrid"):
-        print(f"[{c.chunk_id} | score={c.score} | v{c.metadata.version}] {c.content.splitlines()[2]}")
-
-    print("\n--- TEST 2: Dense Search (AWS Cloud) ---")
-    for c in rag.retrieve("Chứng chỉ điện toán đám mây AWS miễn môn nào?", top_k=2, mode="dense"):
-        print(f"[{c.chunk_id} | score={c.score} | v{c.metadata.version}] {c.content.splitlines()[2]}")
-
-    print("\n--- TEST 3: Metadata Filter (version=2.0) ---")
-    for c in rag.retrieve("IELTS 6.0 miễn môn gì?", top_k=2, mode="hybrid", version_filter="2.0"):
-        print(f"[{c.chunk_id} | score={c.score} | v{c.metadata.version}] {c.content.splitlines()[2]}")
+        print(f"[{c.chunk_id} | score={c.score} | v{c.metadata.version}]")

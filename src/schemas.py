@@ -45,10 +45,11 @@ class ToolExecutionResult:
 
 @dataclass
 class TokenUsage:
+    calls: int = 0
     prompt_tokens: int = 0
     completion_tokens: int = 0
     total_tokens: int = 0
-    calls: int = 0
+    max_prompt: int = 0
 
 
 @dataclass
