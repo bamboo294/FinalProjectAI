@@ -1,0 +1,310 @@
+{
+  "records": {
+    "REQ-2026-001": {
+      "ticket_id": "REQ-2026-001",
+      "student_id": "SV2026001",
+      "cert_name": "IELTS Academic",
+      "cert_score": 6.5,
+      "issue_date": "2025-11-15",
+      "course_codes": [
+        "ENG101",
+        "ENG102",
+        "ENG103"
+      ],
+      "requested_credits": 9,
+      "approved_credits": 9,
+      "capping_applied": false,
+      "status": "PENDING_REVIEW",
+      "created_at": "2026-10-17T23:27:46.055622",
+      "notes": "Xét duyệt tự động theo quy chế DOC0008 v2.0"
+    },
+    "REQ-2026-002": {
+      "ticket_id": "REQ-2026-002",
+      "student_id": "SV2026010",
+      "cert_name": "IELTS Academic",
+      "cert_score": 6.5,
+      "issue_date": "2025-10-20",
+      "course_codes": [
+        "ENG101",
+        "ENG102",
+        "ENG103"
+      ],
+      "requested_credits": 9,
+      "approved_credits": 9,
+      "capping_applied": false,
+      "status": "PENDING_REVIEW",
+      "created_at": "2026-10-17T23:28:00.982695",
+      "notes": "Xét duyệt tự động theo quy chế DOC0008 v2.0"
+    },
+    "REQ-2026-003": {
+      "ticket_id": "REQ-2026-003",
+      "student_id": "SV2026025",
+      "cert_name": "IELTS Academic",
+      "cert_score": 7.0,
+      "issue_date": "2025-12-01",
+      "course_codes": [
+        "ENG101",
+        "ENG102",
+        "ENG103",
+        "IT305",
+        "IT405",
+        "EXTRA01"
+      ],
+      "requested_credits": 18,
+      "approved_credits": 15,
+      "capping_applied": true,
+      "status": "PENDING_REVIEW",
+      "created_at": "2026-10-17T23:28:01.868239",
+      "notes": "Xét duyệt tự động theo quy chế DOC0008 v2.0"
+    },
+    "REQ-2026-004": {
+      "ticket_id": "REQ-2026-004",
+      "student_id": "SV2026010",
+      "cert_name": "IELTS Academic",
+      "cert_score": 6.5,
+      "issue_date": "2025-10-20",
+      "course_codes": [
+        "ENG101",
+        "ENG102",
+        "ENG103"
+      ],
+      "requested_credits": 9,
+      "approved_credits": 9,
+      "capping_applied": false,
+      "status": "PENDING_REVIEW",
+      "created_at": "2026-10-17T23:28:10.718394",
+      "notes": "Xét duyệt tự động theo quy chế DOC0008 v2.0"
+    },
+    "REQ-2026-005": {
+      "ticket_id": "REQ-2026-005",
+      "student_id": "SV2026025",
+      "cert_name": "IELTS Academic",
+      "cert_score": 7.0,
+      "issue_date": "2025-12-01",
+      "course_codes": [
+        "ENG101",
+        "ENG102",
+        "ENG103",
+        "IT305",
+        "IT405",
+        "EXTRA01"
+      ],
+      "requested_credits": 18,
+      "approved_credits": 15,
+      "capping_applied": true,
+      "status": "PENDING_REVIEW",
+      "created_at": "2026-10-17T23:28:11.447127",
+      "notes": "Xét duyệt tự động theo quy chế DOC0008 v2.0"
+    },
+    "REQ-2026-006": {
+      "ticket_id": "REQ-2026-006",
+      "student_id": "SV2026010",
+      "cert_name": "IELTS Academic",
+      "cert_score": 6.5,
+      "issue_date": "2025-10-20",
+      "course_codes": [
+        "ENG101",
+        "ENG102",
+        "ENG103"
+      ],
+      "requested_credits": 9,
+      "approved_credits": 9,
+      "capping_applied": false,
+      "status": "PENDING_REVIEW",
+      "created_at": "2026-10-17T23:28:20.786977",
+      "notes": "Xét duyệt tự động theo quy chế DOC0008 v2.0"
+    },
+    "REQ-2026-007": {
+      "ticket_id": "REQ-2026-007",
+      "student_id": "SV2026025",
+      "cert_name": "IELTS Academic",
+      "cert_score": 7.0,
+      "issue_date": "2025-12-01",
+      "course_codes": [
+        "ENG101",
+        "ENG102",
+        "ENG103",
+        "IT305",
+        "IT405",
+        "EXTRA01"
+      ],
+      "requested_credits": 18,
+      "approved_credits": 15,
+      "capping_applied": true,
+      "status": "PENDING_REVIEW",
+      "created_at": "2026-10-17T23:28:21.621846",
+      "notes": "Xét duyệt tự động theo quy chế DOC0008 v2.0"
+    },
+    "REQ-2026-008": {
+      "ticket_id": "REQ-2026-008",
+      "student_id": "SV2026888",
+      "cert_name": "IELTS Academic",
+      "cert_score": 7.0,
+      "issue_date": "2025-11-20",
+      "course_codes": [
+        "ENG101",
+        "ENG102",
+        "ENG103"
+      ],
+      "requested_credits": 9,
+      "approved_credits": 9,
+      "capping_applied": false,
+      "status": "PENDING_REVIEW",
+      "created_at": "2026-10-17T23:36:45.144477",
+      "notes": "Xét duyệt tự động theo quy chế DOC0008 v2.0"
+    },
+    "REQ-2026-009": {
+      "ticket_id": "REQ-2026-009",
+      "student_id": "SV2026001",
+      "cert_name": "IELTS Academic",
+      "cert_score": 6.5,
+      "issue_date": "2025-11-15",
+      "course_codes": [
+        "ENG101",
+        "ENG102",
+        "ENG103"
+      ],
+      "requested_credits": 9,
+      "approved_credits": 9,
+      "capping_applied": false,
+      "status": "PENDING_REVIEW",
+      "created_at": "2026-10-17T23:40:39.727034",
+      "notes": "Xét duyệt tự động theo quy chế DOC0008 v2.0"
+    },
+    "REQ-2026-010": {
+      "ticket_id": "REQ-2026-010",
+      "student_id": "SV2026010",
+      "cert_name": "IELTS Academic",
+      "cert_score": 6.5,
+      "issue_date": "2025-10-20",
+      "course_codes": [
+        "ENG101",
+        "ENG102",
+        "ENG103"
+      ],
+      "requested_credits": 9,
+      "approved_credits": 9,
+      "capping_applied": false,
+      "status": "PENDING_REVIEW",
+      "created_at": "2026-10-17T23:41:51.073099",
+      "notes": "Xét duyệt tự động theo quy chế DOC0008 v2.0"
+    },
+    "REQ-2026-011": {
+      "ticket_id": "REQ-2026-011",
+      "student_id": "SV2026025",
+      "cert_name": "IELTS Academic",
+      "cert_score": 7.0,
+      "issue_date": "2025-12-01",
+      "course_codes": [
+        "ENG101",
+        "ENG102",
+        "ENG103",
+        "IT305",
+        "IT405",
+        "EXTRA01"
+      ],
+      "requested_credits": 18,
+      "approved_credits": 15,
+      "capping_applied": true,
+      "status": "PENDING_REVIEW",
+      "created_at": "2026-10-17T23:41:51.771473",
+      "notes": "Xét duyệt tự động theo quy chế DOC0008 v2.0"
+    },
+    "REQ-2026-012": {
+      "ticket_id": "REQ-2026-012",
+      "student_id": "SV2026010",
+      "cert_name": "IELTS Academic",
+      "cert_score": 6.5,
+      "issue_date": "2025-10-20",
+      "course_codes": [
+        "ENG101",
+        "ENG102",
+        "ENG103"
+      ],
+      "requested_credits": 9,
+      "approved_credits": 9,
+      "capping_applied": false,
+      "status": "PENDING_REVIEW",
+      "created_at": "2026-10-17T23:41:58.815629",
+      "notes": "Xét duyệt tự động theo quy chế DOC0008 v2.0"
+    },
+    "REQ-2026-013": {
+      "ticket_id": "REQ-2026-013",
+      "student_id": "SV2026025",
+      "cert_name": "IELTS Academic",
+      "cert_score": 7.0,
+      "issue_date": "2025-12-01",
+      "course_codes": [
+        "ENG101",
+        "ENG102",
+        "ENG103",
+        "IT305",
+        "IT405",
+        "EXTRA01"
+      ],
+      "requested_credits": 18,
+      "approved_credits": 15,
+      "capping_applied": true,
+      "status": "PENDING_REVIEW",
+      "created_at": "2026-10-17T23:41:59.429568",
+      "notes": "Xét duyệt tự động theo quy chế DOC0008 v2.0"
+    },
+    "REQ-2026-014": {
+      "ticket_id": "REQ-2026-014",
+      "student_id": "SV2026010",
+      "cert_name": "IELTS Academic",
+      "cert_score": 6.5,
+      "issue_date": "2025-10-20",
+      "course_codes": [
+        "ENG101",
+        "ENG102",
+        "ENG103"
+      ],
+      "requested_credits": 9,
+      "approved_credits": 9,
+      "capping_applied": false,
+      "status": "PENDING_REVIEW",
+      "created_at": "2026-10-17T23:42:06.324502",
+      "notes": "Xét duyệt tự động theo quy chế DOC0008 v2.0"
+    },
+    "REQ-2026-015": {
+      "ticket_id": "REQ-2026-015",
+      "student_id": "SV2026025",
+      "cert_name": "IELTS Academic",
+      "cert_score": 7.0,
+      "issue_date": "2025-12-01",
+      "course_codes": [
+        "ENG101",
+        "ENG102",
+        "ENG103",
+        "IT305",
+        "IT405",
+        "EXTRA01"
+      ],
+      "requested_credits": 18,
+      "approved_credits": 15,
+      "capping_applied": true,
+      "status": "PENDING_REVIEW",
+      "created_at": "2026-10-17T23:42:07.027827",
+      "notes": "Xét duyệt tự động theo quy chế DOC0008 v2.0"
+    },
+    "REQ-2026-016": {
+      "ticket_id": "REQ-2026-016",
+      "student_id": "SV2026111",
+      "cert_name": "TOEIC",
+      "cert_score": 800.0,
+      "issue_date": "2026-01-05",
+      "course_codes": [
+        "ENG101",
+        "ENG102",
+        "ENG103"
+      ],
+      "requested_credits": 9,
+      "approved_credits": 9,
+      "capping_applied": false,
+      "status": "PENDING_REVIEW",
+      "created_at": "2026-10-17T23:53:48.677772",
+      "notes": "Xét duyệt tự động theo quy chế DOC0008 & DOC0010 v2.0"
+    }
+  }
+}
