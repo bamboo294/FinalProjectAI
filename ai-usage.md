@@ -1,26 +1,14 @@
-# Kê Khai Sử Dụng AI (AI Usage Declaration)
+# Khai Báo Sử Dụng AI (Academic Integrity & AI Usage Declaration)
 
-## 1. Thông Tin Chung
-- **Dự án**: AIPR Credit Transfer Assistant (Hệ thống trợ lý AI tư vấn và thẩm định chuyển đổi tín chỉ học phần)
-- **Học phần**: Trí tuệ nhân tạo & Lập trình Python ứng dụng
-- **Tác giả / Nhóm thực hiện**: [Điền tên sinh viên / nhóm]
+Dự án tuân thủ quy định liêm chính học thuật của môn Lập trình AI với Python (AIPR). Dưới đây là chi tiết các phần có sự hỗ trợ của công cụ AI:
 
-## 2. Công Cụ AI Đã Sử Dụng
-- **Trợ lý lập trình**: Antigravity Coding Assistant (Gemini 3.8 Flash).
-- **Mô hình ngôn ngữ lớn (LLM)**: Gemini API (`gemini-2.5-flash`), OpenAI API (`gpt-4o-mini`).
-- **Framework & Công nghệ**: Model Context Protocol (MCP), ChromaDB, Sentence-Transformers.
+## 1. Công cụ sử dụng
+- **Gemini / Antigravity Coding Assistant**: Hỗ trợ thiết kế khung dataclass, chuẩn hóa docstring và kiểm tra cú pháp MCP SDK.
 
-## 3. Danh Mục Các Phần Có Sự Hỗ Trợ Của AI
-- **Khởi tạo kiến trúc dự án**: Hỗ trợ tổ chức cấu trúc thư mục module hóa 4 giai đoạn (`src/`, `prompts/`, `tests/`, `logs/`).
-- **Thiết kế Data Contracts (`src/schemas.py`)**: Hỗ trợ định nghĩa các `@dataclass` mô hình hóa dữ liệu học phần (`Course`), trích đoạn quy chế (`RegulationChunk`), kết quả thẩm định (`TransferEvaluation`) và bản ghi trace bước chạy (`AgentTraceStep`).
-- **Xây dựng Template Mã Nguồn**:
-  - `src/rag.py`: Thiết lập cấu trúc lớp `CreditTransferRAG` cho giai đoạn 2.
-  - `src/mcp_server.py`: Thiết lập khung MCP Server và các tool chuyên biệt (`search_regulations`, `calculate_syllabus_similarity`, `evaluate_transfer_eligibility`) cho giai đoạn 3.
-  - `src/agent.py`: Thiết lập khung điều phối vòng lặp tác tử `CreditTransferAgent` cho giai đoạn 4.
-- **Biên soạn System Prompt (`prompts/system_prompt.txt`)**: Định hình nhân vật, quy chuẩn pháp lý và tiêu chí phân loại kết quả thẩm định (APPROVED, REJECTED, CONDITIONAL, UNDER_REVIEW).
-- **Thiết kế Bộ Test Mẫu (`tests/testset.jsonl`)**: Sinh các ca kiểm thử mô phỏng các tình huống thực tế sinh viên xin chuyển đổi tín chỉ.
-
-## 4. Cam Kết & Trách Nhiệm Của Tác Giả
-- Tác giả đã kiểm tra, rà soát và hiểu rõ toàn bộ cấu trúc mã nguồn được AI hỗ trợ sinh ra.
-- Toàn bộ logic nghiệp vụ, các bước kiểm thử và tinh chỉnh tiếp theo do tác giả trực tiếp thực hiện và chịu trách nhiệm.
-
+## 2. Chi tiết các phần sử dụng AI
+| Thành phần / File | Mức độ sử dụng | Prompt chính đã dùng | Kiểm soát & Chỉnh sửa của Sinh viên |
+| :--- | :--- | :--- | :--- |
+| `src/schemas.py` | Gợi ý cấu trúc `@dataclass` | *"Thiết kế các dataclass có type hint cho DocumentChunk, ExemptionRequestInput, ToolExecutionResult và RunTrace"* | Sinh viên tự định nghĩa các trường dữ liệu khớp với bài toán xét miễn tín chỉ và thêm `max_prompt`. |
+| `src/rag.py` | Hỗ trợ hàm regex tách câu và chuẩn hóa Min-Max | *"Viết hàm cắt chunk theo tiêu đề cấp 2 ## và chuẩn hóa điểm BM25 + Cosine Similarity"* | Sinh viên tự thiết kế cấu trúc YAML metadata và kiểm thử trọng số `alpha = 0.5`. |
+| `src/mcp_server.py` | Tham khảo cú pháp `@mcp.tool()` của FastMCP | *"Cách viết MCP Server qua stdio không in ra stdout và lưu JSON an toàn"* | Sinh viên tự cài đặt quy tắc mức trần 15 tín chỉ (`MAX_CREDIT_CAP = 15`) và cặp tool Write -> Verify. |
+| `src/agent.py` & `src/eval.py` | Hỗ trợ cấu trúc `stdio_client` bất đồng bộ | *"Kết nối MCP Client qua stdio_client, discover động list_tools và ghi log jsonl"* | Sinh viên tự kiểm soát vòng lặp `MAX_STEPS = 6`, hàm `_safe_parse_action` và bộ 12 câu hỏi trong `tests/testset.jsonl`. |
