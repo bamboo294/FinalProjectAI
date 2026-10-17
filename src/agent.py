@@ -11,6 +11,7 @@ import os
 import re
 import sys
 import time
+import unicodedata
 from dataclasses import asdict
 from datetime import datetime
 from pathlib import Path
@@ -131,16 +132,41 @@ class CreditTransferAgent:
         usage.max_prompt = max(usage.max_prompt, est_prompt_tokens)
         return plan_json
 
+    def _strip_accents(self, text: str) -> str:
+        """Chuẩn hóa chuỗi tiếng Việt không dấu (Xử lý Lỗi 6)."""
+        nfd = unicodedata.normalize("NFD", text.lower().replace("đ", "d"))
+        return "".join(ch for ch in nfd if unicodedata.category(ch) != "Mn")
+
+    def _extract_normalized_date(self, text: str) -> Optional[str]:
+        """Trích xuất và chuẩn hóa ngày cấp từ cả YYYY-MM-DD và DD/MM/YYYY (Xử lý Lỗi 5)."""
+        iso_m = re.search(r"\b(\d{4})[-/](\d{1,2})[-/](\d{1,2})\b", text)
+        if iso_m:
+            y, m, d = int(iso_m.group(1)), int(iso_m.group(2)), int(iso_m.group(3))
+            try:
+                return datetime(y, m, d).strftime("%Y-%m-%d")
+            except ValueError:
+                return None
+
+        vn_m = re.search(r"\b(\d{1,2})[-/](\d{1,2})[-/](\d{4})\b", text)
+        if vn_m:
+            d, m, y = int(vn_m.group(1)), int(vn_m.group(2)), int(vn_m.group(3))
+            try:
+                return datetime(y, m, d).strftime("%Y-%m-%d")
+            except ValueError:
+                return None
+        return None
+
     def _deterministic_react_policy(self, step: int, query: str, last_obs: str) -> str:
         """Bộ suy luận ReAct chuẩn xác phục vụ chạy thực nghiệm và bảo vệ."""
         q_lower = query.lower()
+        q_ascii = self._strip_accents(query)
 
-        # 1. Kiểm tra trường hợp tra cứu tình trạng hồ sơ trực tiếp từ DB
-        is_status_query = any(k in q_lower for k in [
-            "đã được miễn", "đã được duyệt", "tra cứu hồ sơ", "tình trạng hồ sơ",
-            "kiểm tra hồ sơ", "trạng thái hồ sơ", "xét duyệt chưa", "có hồ sơ chưa",
-            "kết quả xét miễn"
-        ]) and not any(k in q_lower for k in ["nộp đơn", "nộp hồ sơ", "đăng ký", "tạo đơn"])
+        # 1. Kiểm tra trường hợp tra cứu tình trạng hồ sơ trực tiếp từ DB (hỗ trợ cả có dấu & không dấu)
+        is_status_query = any(k in q_ascii for k in [
+            "da duoc mien", "da duoc duyet", "tra cuu ho so", "tinh trang ho so",
+            "kiem tra ho so", "trang thai ho so", "xet duyet chua", "co ho so chua",
+            "ket qua xet mien"
+        ]) and not any(k in q_ascii for k in ["nop don", "nop ho so", "dang ky", "tao don"])
 
         if is_status_query:
             if step == 1:
@@ -188,7 +214,7 @@ class CreditTransferAgent:
         # Bước 1: Luôn tra cứu RAG qua MCP tool search_regulations
         if step == 1:
             v_filter = None
-            if "2026" in q_lower and "2024" not in q_lower and "so sánh" not in q_lower:
+            if "2026" in q_lower and "2024" not in q_lower and "so sanh" not in q_ascii:
                 v_filter = "2.0"
             return json.dumps({
                 "thought": f"Tra cứu quy chế trong corpus với chế độ {self.retrieval_mode} để tìm bằng chứng (doc_id, version).",
@@ -201,8 +227,8 @@ class CreditTransferAgent:
                 }
             }, ensure_ascii=False)
 
-        # Kiểm tra các trường hợp Từ chối (No Answer - Tầng a & Tầng b)
-        if any(k in q_lower for k in ["jlpt", "tiếng nhật", "topik", "tiếng hàn", "bằng lái", "mos", "ic3"]):
+        # Kiểm tra các trường hợp Từ chối (No Answer - Tầng a & Tầng b, hỗ trợ cả không dấu)
+        if any(k in q_ascii for k in ["jlpt", "tieng nhat", "topik", "tieng han", "bang lai", "mos", "ic3"]):
             return json.dumps({
                 "thought": "Kết quả tra cứu DOC0007, DOC0008, DOC0009, DOC0010 không có quy định cho chứng chỉ này. Phải từ chối (no_answer - Tầng a).",
                 "action_tool": "final_answer",
@@ -211,9 +237,9 @@ class CreditTransferAgent:
                 }
             }, ensure_ascii=False)
 
-        if ("toeic" in q_lower or "toefl" in q_lower) and any(
-            yr in q_lower for yr in ["năm 2", "năm hai", "năm 3", "năm ba", "năm 4", "năm tư", "khóa cũ"]
-        ) and "2027" not in q_lower:
+        if ("toeic" in q_ascii or "toefl" in q_ascii) and any(
+            yr in q_ascii for yr in ["nam 2", "nam hai", "nam 3", "nam ba", "nam 4", "nam tu", "khoa cu"]
+        ) and "2027" not in q_ascii:
             return json.dumps({
                 "thought": "Theo DOC0010 (v2.0, Điều 2), từ 01/01/2026 chứng chỉ TOEIC/TOEFL chỉ áp dụng cho sinh viên năm nhất; mọi sinh viên toàn trường chỉ chính thức được công nhận từ 01/01/2027. Phải từ chối.",
                 "action_tool": "final_answer",
@@ -222,7 +248,7 @@ class CreditTransferAgent:
                 }
             }, ensure_ascii=False)
 
-        if "it101" in q_lower or "nhập môn lập trình" in q_lower:
+        if "it101" in q_ascii or "nhap mon lap trinh" in q_ascii:
             return json.dumps({
                 "thought": "Theo DOC0009 (v1.0), học phần IT101 là môn bắt buộc không áp dụng miễn giảm. Phải từ chối.",
                 "action_tool": "final_answer",
@@ -231,7 +257,7 @@ class CreditTransferAgent:
                 }
             }, ensure_ascii=False)
 
-        if "thiếu ngày cấp" in q_lower or "không nhớ ngày cấp" in q_lower or "chưa có ngày cấp" in q_lower:
+        if any(k in q_ascii for k in ["thieu ngay cap", "khong nho ngay cap", "chua co ngay cap", "quen ngay cap"]):
             return json.dumps({
                 "thought": "Theo DOC0008 (v2.0, Điều 4), hồ sơ bắt buộc phải có ngày cấp (issue_date). Thiếu dữ liệu để suy luận nên phải từ chối (Tầng b).",
                 "action_tool": "final_answer",
@@ -240,7 +266,7 @@ class CreditTransferAgent:
                 }
             }, ensure_ascii=False)
 
-        if "2021" in q_lower or "hết hạn" in q_lower or "3 năm trước" in q_lower:
+        if "2021" in q_ascii or "het han" in q_ascii or "3 nam truoc" in q_ascii:
             return json.dumps({
                 "thought": "Chứng chỉ cấp năm 2021 đã quá thời hạn 2 năm theo quy định tại DOC0007 (v1.0) và DOC0008 (v2.0, Điều 4). Từ chối xét duyệt.",
                 "action_tool": "final_answer",
@@ -249,40 +275,111 @@ class CreditTransferAgent:
                 }
             }, ensure_ascii=False)
 
-        # Nếu có yêu cầu nộp đơn / đăng ký xét miễn -> Kích hoạt Tầng (c) Write Tool -> Verify Tool
-        needs_submission = any(k in q_lower for k in ["nộp đơn", "nộp hồ sơ", "đăng ký miễn", "tạo đơn", "xét miễn cho em", "xin miễn"])
+        # Kiểm tra Lỗi 3 & Lỗi 5: Trích xuất ngày từ cả YYYY-MM-DD và DD/MM/YYYY, kiểm tra hạn 2 năm
+        normalized_date = self._extract_normalized_date(query)
+        if normalized_date:
+            try:
+                issued_dt = datetime.strptime(normalized_date, "%Y-%m-%d").date()
+                ref_date = datetime(2026, 2, 1).date()
+                today_date = datetime.now().date()
+                if issued_dt > max(ref_date, today_date):
+                    return json.dumps({
+                        "thought": f"Ngày cấp {normalized_date} nằm ở tương lai, vi phạm Điều 4 DOC0008. Phải từ chối.",
+                        "action_tool": "final_answer",
+                        "action_input": {
+                            "answer": f"TỪ CHỐI (NO_ANSWER - Ngày cấp không hợp lệ): Căn cứ theo DOC0008 (v2.0, Điều 4), ngày cấp chứng chỉ ({normalized_date}) nằm ở tương lai nên hồ sơ không hợp lệ."
+                        }
+                    }, ensure_ascii=False)
+                remaining_days = 730 - (ref_date - issued_dt).days
+                if remaining_days < 30:
+                    return json.dumps({
+                        "thought": f"Chứng chỉ cấp ngày {normalized_date} đã hết hạn 2 năm hoặc còn dưới 30 ngày hiệu lực tính đến năm 2026 theo DOC0008 (Điều 4). Phải từ chối.",
+                        "action_tool": "final_answer",
+                        "action_input": {
+                            "answer": f"TỪ CHỐI (NO_ANSWER - Chứng chỉ hết hạn): Căn cứ theo DOC0007 (v1.0, Điều 1) và DOC0008 (v2.0, Điều 4), chứng chỉ phải còn thời hạn hiệu lực tối thiểu 30 ngày tính đến ngày xét duyệt. Chứng chỉ cấp ngày {normalized_date} đã quá hạn 2 năm (hoặc còn dưới 30 ngày hiệu lực) nên không đủ điều kiện xét miễn."
+                        }
+                    }, ensure_ascii=False)
+            except ValueError:
+                pass
+
+        # Nếu có yêu cầu nộp đơn / đăng ký xét miễn -> Kiểm tra Lỗi 1, Lỗi 2 trước khi gọi Write Tool (hỗ trợ không dấu)
+        needs_submission = any(k in q_ascii for k in [
+            "nop don", "nop ho so", "dang ky mien", "tao don", "xet mien cho em", "xin mien"
+        ])
+
+        # Kiểm tra Lỗi 1: Điểm chứng chỉ dưới ngưỡng tối thiểu (IELTS < 6.0, TOEIC < 700, TOEFL < 60)
+        toeic_m = re.search(r"toeic\s*(\d+(?:\.\d+)?)", q_ascii)
+        if toeic_m and float(toeic_m.group(1)) < 700:
+            return json.dumps({
+                "thought": f"Điểm TOEIC {toeic_m.group(1)} thấp hơn mức tối thiểu 700 tại DOC0010 (v2.0, Điều 1). Phải từ chối.",
+                "action_tool": "final_answer",
+                "action_input": {
+                    "answer": f"TỪ CHỐI (NO_ANSWER - Điểm dưới mức tối thiểu): Căn cứ theo DOC0010 (v2.0, Điều 1), chứng chỉ TOEIC phải đạt tối thiểu từ 700 điểm trở lên mới đủ điều kiện xét miễn học phần (điểm hiện tại của bạn là {toeic_m.group(1)})."
+                }
+            }, ensure_ascii=False)
+
+        toefl_m = re.search(r"toefl(?:\s*ibt)?\s*(\d+(?:\.\d+)?)", q_ascii)
+        if toefl_m and float(toefl_m.group(1)) < 60:
+            return json.dumps({
+                "thought": f"Điểm TOEFL {toefl_m.group(1)} thấp hơn mức tối thiểu 60 tại DOC0010 (v2.0, Điều 1). Phải từ chối.",
+                "action_tool": "final_answer",
+                "action_input": {
+                    "answer": f"TỪ CHỐI (NO_ANSWER - Điểm dưới mức tối thiểu): Căn cứ theo DOC0010 (v2.0, Điều 1), chứng chỉ TOEFL iBT phải đạt tối thiểu từ 60 điểm trở lên mới đủ điều kiện xét miễn học phần (điểm hiện tại của bạn là {toefl_m.group(1)})."
+                }
+            }, ensure_ascii=False)
+
+        ielts_m = re.search(r"ielts(?:\s*academic)?\s*(\d+(?:\.\d+)?)", q_ascii)
+        if needs_submission and ielts_m and float(ielts_m.group(1)) < 6.0:
+            return json.dumps({
+                "thought": f"Điểm IELTS {ielts_m.group(1)} thấp hơn mức tối thiểu 6.0 tại DOC0008 (v2.0, Điều 1). Phải từ chối nộp đơn.",
+                "action_tool": "final_answer",
+                "action_input": {
+                    "answer": f"TỪ CHỐI (NO_ANSWER - Điểm dưới mức tối thiểu): Căn cứ theo DOC0008 (v2.0, Điều 1), quy chế hiện hành năm 2026 yêu cầu chứng chỉ IELTS phải đạt tối thiểu từ 6.0 trở lên mới được xét miễn học phần (điểm của bạn là {ielts_m.group(1)})."
+                }
+            }, ensure_ascii=False)
+
         if needs_submission and step == 2:
-            student_match = re.search(r"(sv\d+)", q_lower)
+            # Kiểm tra Lỗi 2: Yêu cầu nộp đơn nhưng không cung cấp ngày cấp (issue_date)
+            if not normalized_date:
+                return json.dumps({
+                    "thought": "Người dùng yêu cầu nộp đơn nhưng không cung cấp ngày cấp (issue_date). Theo DOC0008 (v2.0, Điều 4), phải từ chối do thiếu dữ liệu suy luận.",
+                    "action_tool": "final_answer",
+                    "action_input": {
+                        "answer": "TỪ CHỐI (NO_ANSWER - Thiếu dữ liệu suy luận): Căn cứ theo DOC0008 (v2.0, Điều 4), hồ sơ bắt buộc phải có ngày cấp (issue_date) để kiểm tra thời hạn hiệu lực. Do bạn chưa cung cấp ngày cấp chứng chỉ nên hệ thống từ chối xét duyệt."
+                    }
+                }, ensure_ascii=False)
+
+            student_match = re.search(r"(sv\d+)", q_ascii)
             student_id = student_match.group(1).upper() if student_match else "SV2026001"
-            date_match = re.search(r"(\d{4}-\d{2}-\d{2})", q_lower)
-            issue_date = date_match.group(1) if date_match else "2025-11-15"
+            issue_date = normalized_date
 
             courses = []
             score = 6.5
             cert_name = "IELTS Academic"
-            if "toeic" in q_lower:
+            if "toeic" in q_ascii and toeic_m:
                 cert_name = "TOEIC"
-                score_match = re.search(r"toeic\s*(\d+)", q_lower)
-                score = float(score_match.group(1)) if score_match else 800.0
+                score = float(toeic_m.group(1))
                 courses = ["ENG101", "ENG102", "ENG103"] if score >= 785 else ["ENG101", "ENG102"]
-            elif "toefl" in q_lower:
+            elif "toefl" in q_ascii and toefl_m:
                 cert_name = "TOEFL iBT"
-                score_match = re.search(r"toefl(?:\s*ibt)?\s*(\d+)", q_lower)
-                score = float(score_match.group(1)) if score_match else 85.0
+                score = float(toefl_m.group(1))
                 courses = ["ENG101", "ENG102", "ENG103"] if score >= 79 else ["ENG101", "ENG102"]
-            elif "6.5" in q_lower or "7.0" in q_lower:
+            elif ielts_m:
+                score = float(ielts_m.group(1))
+                courses.extend(["ENG101", "ENG102", "ENG103"] if score >= 6.5 else ["ENG101", "ENG102"])
+            elif "6.5" in q_ascii or "7.0" in q_ascii:
                 courses.extend(["ENG101", "ENG102", "ENG103"])
-                score = 7.0 if "7.0" in q_lower else 6.5
-            elif "6.0" in q_lower:
+                score = 7.0 if "7.0" in q_ascii else 6.5
+            elif "6.0" in q_ascii:
                 courses.extend(["ENG101", "ENG102"])
                 score = 6.0
-            if "practitioner" in q_lower or "it305" in q_lower:
+            if "practitioner" in q_ascii or "it305" in q_ascii:
                 courses.append("IT305")
                 if not courses:
                     cert_name = "AWS Certified Cloud Practitioner"
-            if "architect" in q_lower or "it405" in q_lower:
+            if "architect" in q_ascii or "it405" in q_ascii:
                 courses.append("IT405")
-            if "vượt trần" in q_lower or "18 tín chỉ" in q_lower:
+            if "vuot tran" in q_ascii or "18 tin chi" in q_ascii:
                 courses = ["ENG101", "ENG102", "ENG103", "IT305", "IT405", "EXTRA01"]
 
             if not courses:
@@ -316,19 +413,22 @@ class CreditTransferAgent:
             ticket_match = re.search(r"(REQ-2026-\d+)", last_obs)
             t_id = ticket_match.group(1) if ticket_match else "REQ-2026-001"
             cap_note = ""
-            if "18" in q_lower or "vượt trần" in q_lower or ("practitioner" in q_lower and "architect" in q_lower and "6.5" in q_lower):
+            if "18 tin chi" in q_ascii or "vuot tran" in q_ascii or ("practitioner" in q_ascii and "architect" in q_ascii and "6.5" in q_ascii):
                 cap_note = " Lưu ý: Theo quy tắc mức trần tại DOC0008 (v2.0, Điều 3), tổng số tín chỉ được công nhận tối đa là 15/15 tín chỉ."
-            doc_ref = "DOC0010 (v2.0), DOC0008 (v2.0) và DOC0009 (v1.0)" if ("toeic" in q_lower or "toefl" in q_lower) else "DOC0008 (v2.0) và DOC0009 (v1.0)"
+            dup_note = ""
+            if "'is_duplicate': True" in last_obs or '"is_duplicate": true' in last_obs.lower():
+                dup_note = f" (Chống nộp trùng Idempotent: giữ nguyên mã hồ sơ {t_id} đã tồn tại của sinh viên, không tạo đơn trùng mới)."
+            doc_ref = "DOC0010 (v2.0), DOC0008 (v2.0) và DOC0009 (v1.0)" if ("toeic" in q_ascii or "toefl" in q_ascii) else "DOC0008 (v2.0) và DOC0009 (v1.0)"
             return json.dumps({
                 "thought": "Bước Verify đã xác nhận bản ghi tồn tại trong DB với trạng thái PENDING_REVIEW. Hoàn tất câu trả lời.",
                 "action_tool": "final_answer",
                 "action_input": {
-                    "answer": f"ĐÃ XÁC NHẬN HỒ SƠ ({t_id}): Căn cứ theo {doc_ref}, hồ sơ xét miễn môn của bạn đã được lưu vào hệ thống và kiểm chứng thành công (verified=True, trạng thái: PENDING_REVIEW).{cap_note}"
+                    "answer": f"ĐÃ XÁC NHẬN HỒ SƠ ({t_id}): Căn cứ theo {doc_ref}, hồ sơ xét miễn môn của bạn đã được lưu vào hệ thống và kiểm chứng thành công (verified=True, trạng thái: PENDING_REVIEW).{dup_note}{cap_note}"
                 }
             }, ensure_ascii=False)
 
         # Các câu hỏi tra cứu & biến đổi (không yêu cầu ghi DB)
-        if "toeic" in q_lower or "toefl" in q_lower:
+        if "toeic" in q_ascii or "toefl" in q_ascii:
             ans = (
                 "Căn cứ theo DOC0010 (v2.0, Điều 1 & Điều 2) kết hợp với DOC0008 (v2.0) và DOC0009 (v1.0): "
                 "(1) Về mức quy đổi: Nhà trường chấp nhận chứng chỉ TOEIC và TOEFL iBT để quy đổi tín chỉ tương đương IELTS: "
@@ -337,32 +437,32 @@ class CreditTransferAgent:
                 "(2) Về lộ trình áp dụng: Từ ngày 01/01/2026 quy định này CHỈ áp dụng cho sinh viên năm nhất; "
                 "và chỉ chính thức được công nhận cho MỌI sinh viên toàn trường từ ngày 01/01/2027."
             )
-        elif "so sánh" in q_lower or ("2024" in q_lower and "2026" in q_lower):
+        elif "so sanh" in q_ascii or ("2024" in q_ascii and "2026" in q_ascii):
             ans = (
                 "Căn cứ theo DOC0007 (v1.0, năm 2024) và DOC0008 (v2.0, năm 2026): "
                 "(1) Về IELTS: Bản 2024 (DOC0007) chỉ miễn tối đa ENG101 và ENG102 (6 tín chỉ) cho IELTS >= 6.0 và chưa miễn ENG103; "
                 "trong khi bản 2026 (DOC0008, Điều 1) cho phép IELTS >= 6.5 được miễn cả 3 môn ENG101, ENG102, ENG103 (9 tín chỉ, điểm 9.0). "
                 "(2) Về mức trần: DOC0007 giới hạn tối đa 10 tín chỉ, còn DOC0008 (Điều 3) nâng mức trần lên tối đa 15 tín chỉ và bổ sung quy đổi chứng chỉ AWS (IT305, IT405 theo DOC0009 v1.0)."
             )
-        elif "aws" in q_lower and ("ielts" in q_lower or "6.5" in q_lower):
+        elif "aws" in q_ascii and ("ielts" in q_ascii or "6.5" in q_ascii):
             ans = (
                 "Tổng hợp từ DOC0008 (v2.0, Điều 1, 2, 3) và DOC0009 (v1.0): "
                 "- IELTS 6.5 được miễn 3 môn: ENG101 (3TC), ENG102 (3TC), ENG103 (3TC) = 9 tín chỉ (điểm 9.0). "
                 "- AWS Cloud Practitioner miễn môn IT305 (3TC, điểm 9.0); AWS Solutions Architect miễn môn IT405 (3TC, điểm 9.5). "
                 "- Tổng cộng các môn là 15 tín chỉ, vừa chạm mức trần tối đa 15 tín chỉ toàn khóa theo DOC0008 (v2.0, Điều 3). Nếu phát sinh thêm môn khác, hệ thống cũng chỉ công nhận tối đa 15 tín chỉ."
             )
-        elif "aws" in q_lower:
+        elif "aws" in q_ascii:
             ans = (
                 "Căn cứ theo DOC0008 (v2.0, Điều 2) kết hợp với khung chương trình DOC0009 (v1.0): "
                 "Chứng chỉ AWS Certified Cloud Practitioner được miễn học phần IT305 (Điện toán đám mây cơ bản, 3 tín chỉ, điểm quy đổi 9.0). "
                 "Chứng chỉ AWS Certified Solutions Architect - Associate được miễn học phần IT405 (Kiến trúc đám mây nâng cao, 3 tín chỉ, điểm quy đổi 9.5)."
             )
-        elif "5.5" in q_lower:
+        elif "5.5" in q_ascii:
             ans = (
                 "Căn cứ theo DOC0008 (v2.0, Điều 1 - đã bãi bỏ DOC0007 v1.0 từ ngày 10/01/2026): "
                 "Quy chế hiện hành năm 2026 yêu cầu tối thiểu IELTS 6.0 mới được xét miễn (ENG101, ENG102). Mức IELTS 5.5 của quy chế cũ DOC0007 (v1.0) đã hết hiệu lực áp dụng."
             )
-        elif "6.0" in q_lower:
+        elif "6.0" in q_ascii:
             ans = (
                 "Căn cứ theo DOC0008 (v2.0, Điều 1) và DOC0009 (v1.0): "
                 "Chứng chỉ IELTS 6.0 được miễn 2 học phần gồm ENG101 (Tiếng Anh 1, 3 tín chỉ) và ENG102 (Tiếng Anh 2, 3 tín chỉ), tổng cộng 6 tín chỉ với mức điểm ghi nhận là 8.5."

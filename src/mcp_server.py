@@ -93,6 +93,54 @@ def submit_exemption_request(
                 error_message="Thiếu dữ liệu bắt buộc (student_id, cert_name, cert_score > 0, issue_date)."
             ).to_agent_string()
 
+        # Kiểm tra Lỗi 1: Ngưỡng điểm tối thiểu theo quy chế DOC0008 & DOC0010
+        c_lower = cert_name.lower()
+        if "ielts" in c_lower and cert_score < 6.0:
+            return ToolExecutionResult(
+                success=False,
+                error_message=f"Điểm IELTS {cert_score} chưa đạt ngưỡng tối thiểu 6.0 theo quy chế DOC0008 (v2.0, Điều 1)."
+            ).to_agent_string()
+        if "toeic" in c_lower and cert_score < 700:
+            return ToolExecutionResult(
+                success=False,
+                error_message=f"Điểm TOEIC {cert_score} chưa đạt ngưỡng tối thiểu 700 theo quy định DOC0010 (v2.0, Điều 1)."
+            ).to_agent_string()
+        if "toefl" in c_lower and cert_score < 60:
+            return ToolExecutionResult(
+                success=False,
+                error_message=f"Điểm TOEFL {cert_score} chưa đạt ngưỡng tối thiểu 60 theo quy định DOC0010 (v2.0, Điều 1)."
+            ).to_agent_string()
+
+        # Kiểm tra Lỗi 3 & Lỗi 5: Hỗ trợ đa định dạng ngày (YYYY-MM-DD, DD/MM/YYYY, DD-MM-YYYY) và kiểm tra hạn 2 năm
+        issued_dt = None
+        for fmt in ("%Y-%m-%d", "%d/%m/%Y", "%d-%m-%Y", "%Y/%m/%d"):
+            try:
+                issued_dt = datetime.strptime(issue_date.strip(), fmt).date()
+                break
+            except ValueError:
+                continue
+
+        if issued_dt is None:
+            return ToolExecutionResult(
+                success=False,
+                error_message=f"Định dạng ngày cấp '{issue_date}' không hợp lệ (hỗ trợ YYYY-MM-DD hoặc DD/MM/YYYY)."
+            ).to_agent_string()
+
+        normalized_date = issued_dt.strftime("%Y-%m-%d")
+        ref_date = datetime(2026, 2, 1).date()
+        today_date = datetime.now().date()
+        if issued_dt > max(ref_date, today_date):
+            return ToolExecutionResult(
+                success=False,
+                error_message=f"Ngày cấp {normalized_date} không hợp lệ (nằm ở tương lai)."
+            ).to_agent_string()
+        remaining_days = 730 - (ref_date - issued_dt).days
+        if remaining_days < 30:
+            return ToolExecutionResult(
+                success=False,
+                error_message=f"Chứng chỉ cấp ngày {normalized_date} đã hết hạn hoặc còn dưới 30 ngày hiệu lực theo DOC0008 (v2.0, Điều 4)."
+            ).to_agent_string()
+
         if "IT101" in course_codes:
             return ToolExecutionResult(
                 success=False,
@@ -100,10 +148,10 @@ def submit_exemption_request(
             ).to_agent_string()
 
         req = ExemptionRequestInput(
-            student_id=student_id,
+            student_id=student_id.upper(),
             cert_name=cert_name,
             cert_score=float(cert_score),
-            issue_date=issue_date,
+            issue_date=normalized_date,
             course_codes=course_codes,
             notes=notes
         )
@@ -113,6 +161,18 @@ def submit_exemption_request(
         is_capped = requested_credits > MAX_CREDIT_CAP
 
         db = _load_db()
+
+        # Kiểm tra Lỗi 4: Chống nộp trùng hồ sơ (Idempotent Check theo student_id + course_codes)
+        for existing_id, existing_rec in db.get("records", {}).items():
+            if (
+                existing_rec.get("student_id", "").upper() == req.student_id
+                and sorted(existing_rec.get("course_codes", [])) == sorted(req.course_codes)
+            ):
+                existing_rec["is_duplicate"] = True
+                existing_rec["updated_at"] = datetime.now().isoformat()
+                _save_db(db)
+                return ToolExecutionResult(success=True, data=existing_rec).to_agent_string()
+
         ticket_id = f"REQ-2026-{len(db['records']) + 1:03d}"
         record = {
             "ticket_id": ticket_id,
@@ -124,6 +184,7 @@ def submit_exemption_request(
             "requested_credits": requested_credits,
             "approved_credits": capped_credits,
             "capping_applied": is_capped,
+            "is_duplicate": False,
             "status": "PENDING_REVIEW",
             "created_at": datetime.now().isoformat(),
             "notes": req.notes or ""
@@ -164,7 +225,8 @@ def verify_exemption_status(ticket_id: str = "", student_id: str = "") -> str:
                     "student_id": record["student_id"],
                     "approved_credits": record["approved_credits"],
                     "course_codes": record["course_codes"],
-                    "cert_name": record.get("cert_name", "")
+                    "cert_name": record.get("cert_name", ""),
+                    "is_duplicate": record.get("is_duplicate", False)
                 }
             ).to_agent_string()
 

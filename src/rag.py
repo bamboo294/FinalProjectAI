@@ -12,6 +12,7 @@ Do đó, hệ thống áp dụng Semantic/Structure-based Chunking cắt theo ti
 
 import os
 import re
+import unicodedata
 from pathlib import Path
 from typing import List, Optional, Dict
 import numpy as np
@@ -43,7 +44,14 @@ class CreditTransferRAG:
             r"[a-z0-9àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ\.]+",
             text
         )
-        return [t.strip(".") for t in tokens if t.strip(".")]
+        base_tokens = [t.strip(".") for t in tokens if t.strip(".")]
+        ascii_tokens = []
+        for tok in base_tokens:
+            nfd = unicodedata.normalize("NFD", tok.replace("đ", "d"))
+            stripped = "".join(c for c in nfd if unicodedata.category(c) != "Mn")
+            if stripped and stripped != tok:
+                ascii_tokens.append(stripped)
+        return base_tokens + ascii_tokens
 
     def _parse_markdown_file(self, file_path: Path) -> tuple[DocumentMetadata, str]:
         raw_text = file_path.read_text(encoding="utf-8")
