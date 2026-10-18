@@ -15,15 +15,26 @@ import unicodedata
 from dataclasses import asdict
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 from dotenv import load_dotenv
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
 
-from src.schemas import AgentStepRecord, RunTrace, TokenUsage
+_ROOT = Path(__file__).resolve().parent.parent
+if str(_ROOT) not in sys.path:
+    sys.path.insert(0, str(_ROOT))
 
-load_dotenv()
+from src.schemas import (
+    DEMO_LOG_PATH,
+    PROJECT_ROOT,
+    SYSTEM_PROMPT_PATH,
+    AgentStepRecord,
+    RunTrace,
+    TokenUsage,
+)
+
+load_dotenv(PROJECT_ROOT / ".env")
 
 logging.basicConfig(
     level=logging.INFO,
@@ -40,7 +51,7 @@ class CreditTransferAgent:
 
     def __init__(
         self,
-        system_prompt_path: str = "prompts/system_prompt.txt",
+        system_prompt_path: Union[str, Path] = SYSTEM_PROMPT_PATH,
         retrieval_mode: str = "hybrid"
     ):
         self.system_prompt = self._load_system_prompt(system_prompt_path)
@@ -49,8 +60,10 @@ class CreditTransferAgent:
         self.use_Wait_llm = bool(os.getenv("OPENAI_API_KEY"))
         self.discovered_tools: List[Dict[str, Any]] = []
 
-    def _load_system_prompt(self, path_str: str) -> str:
-        prompt_path = Path(path_str)
+    def _load_system_prompt(self, path_val: Union[str, Path]) -> str:
+        prompt_path = Path(path_val)
+        if not prompt_path.is_absolute():
+            prompt_path = PROJECT_ROOT / prompt_path
         if prompt_path.exists():
             return prompt_path.read_text(encoding="utf-8")
         return "Bạn là trợ lý AI xét miễn môn học và chuyển đổi tín chỉ."
@@ -480,10 +493,13 @@ class CreditTransferAgent:
         }, ensure_ascii=False)
 
     async def _run_async(self, user_query: str, run_id: str) -> RunTrace:
+        server_env = os.environ.copy()
+        server_env["PYTHONPATH"] = str(PROJECT_ROOT)
         server_params = StdioServerParameters(
             command=sys.executable,
             args=["-m", "src.mcp_server"],
-            env=os.environ.copy()
+            env=server_env,
+            cwd=str(PROJECT_ROOT)
         )
 
         steps: List[AgentStepRecord] = []
@@ -621,7 +637,7 @@ if __name__ == "__main__":
                 print(f"  Step {s.step_number}: [{s.action_tool}] -> {s.thought}")
             print(f"\n🤖 Trợ lý AI: {trace.final_answer}")
             print(f"📊 Token Usage: {asdict(trace.usage)}\n" + "-" * 65 + "\n")
-            save_traces_to_jsonl([trace], Path("logs/run_demo_latest.jsonl"))
+            save_traces_to_jsonl([trace], DEMO_LOG_PATH)
     else:
         default_query = (
             "Em là SV2026001, có chứng chỉ IELTS 6.5 cấp ngày 2025-11-15. "
@@ -638,6 +654,5 @@ if __name__ == "__main__":
         print(f"\n=== FINAL ANSWER ===\n{trace.final_answer}")
         print(f"\n=== TOKEN USAGE ===\n{asdict(trace.usage)}")
 
-        demo_log = Path("logs/run_demo_latest.jsonl")
-        save_traces_to_jsonl([trace], demo_log)
+        save_traces_to_jsonl([trace], DEMO_LOG_PATH)
 

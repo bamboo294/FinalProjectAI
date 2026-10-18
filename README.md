@@ -39,8 +39,8 @@ Dự án được xây dựng tuần tự theo 4 giai đoạn chuẩn:
 ```
 
 1. **Giai đoạn 1 - Chuẩn bị & Data Contracts**:
-   - Khởi tạo thư mục và các hợp đồng dữ liệu (`src/schemas.py`) bằng `@dataclass`.
-   - Thu thập 3 file quy chế đào tạo vào thư mục `data/`.
+   - Khởi tạo thư mục và các hợp đồng dữ liệu (`src/schemas.py`) bằng `@dataclass` kèm quản lý tập trung toàn bộ đường dẫn dự án (`PROJECT_ROOT`, `DATA_DIR`, `DB_PATH`, `LOGS_DIR`...).
+   - Thu thập 4 file quy chế đào tạo (`DOC0007` – `DOC0010`) vào thư mục `data/`.
    - Thiết lập `prompts/system_prompt.txt` và bộ ca kiểm thử `tests/testset.jsonl`.
 2. **Giai đoạn 2 - RAG Pipeline (`src/rag.py`)**:
    - Phân đoạn theo điều khoản (`## `), hỗ trợ **Dense Search**, **BM25**, **Hybrid Search** và **Metadata Filter** (`version_filter`).
@@ -55,25 +55,30 @@ Dự án được xây dựng tuần tự theo 4 giai đoạn chuẩn:
 
 ```
 aipr-credit-transfer-assistant/
-├── data/                     # Chứa 3 file tài liệu quy chế (corpus) & exemptions_db.json
-├── src/                      # Toàn bộ mã nguồn Python
+├── data/                              # Corpus quy chế & Cơ sở dữ liệu hồ sơ
+│   ├── DOC0007_EXEMPT_2024.md         # Quy chế xét miễn năm 2024 (v1.0)
+│   ├── DOC0008_EXEMPT_2026.md         # Quy chế xét miễn năm 2026 (v2.0)
+│   ├── DOC0009_CURRICULUM_IT.md       # Khung chương trình CNTT (v1.0)
+│   ├── DOC0010_EXEMPT_TOEIC_TOEFL.md  # Quy định bổ sung TOEIC/TOEFL (v2.0)
+│   └── exemptions_db.json             # DB lưu trữ hồ sơ xét miễn (Side-effect DB)
+├── src/                               # Toàn bộ mã nguồn Python
 │   ├── __init__.py
-│   ├── schemas.py            # Khai báo @dataclass cho data contracts & TokenUsage
-│   ├── rag.py                # Pipeline tìm kiếm (Dense + BM25 + Hybrid + Metadata Filter)
-│   ├── mcp_server.py         # MCP Server qua stdio (Search + Write + Verify tools)
-│   ├── agent.py              # Custom Agent Loop (Dynamic tool discovery, MAX_STEPS=6)
-│   ├── eval.py               # Script đánh giá 12 câu testset, so sánh Hybrid vs Dense & xuất CSV
-│   └── mcp_client_check.py   # Client host thứ 2 kiểm chứng khả năng tương tác MCP
-├── prompts/                  # Prompt hệ thống tách riêng khỏi code
+│   ├── schemas.py                     # Khai báo 7 @dataclass & hằng số đường dẫn tập trung
+│   ├── rag.py                         # Pipeline tìm kiếm (Dense + BM25 + Hybrid + Metadata Filter)
+│   ├── mcp_server.py                  # MCP Server qua stdio (Search + Write + Verify tools)
+│   ├── agent.py                       # Custom Agent Loop (Dynamic tool discovery, MAX_STEPS=6)
+│   ├── eval.py                        # Script đánh giá 12 câu testset, so sánh Hybrid vs Dense & xuất CSV
+│   └── mcp_client_check.py            # Client host thứ 2 kiểm chứng khả năng tương tác MCP
+├── prompts/                           # Prompt hệ thống tách riêng khỏi code
 │   └── system_prompt.txt
-├── tests/                    # Bộ testset kiểm thử (12 câu, gồm 4 câu no_answer)
+├── tests/                             # Bộ testset kiểm thử (12 câu, gồm 4 câu no_answer)
 │   └── testset.jsonl
-├── logs/                     # Chứa >= 3 file trace .jsonl chạy thật & bảng eval_summary.csv
-├── Makefile                  # Lệnh chạy tự động (setup, demo, eval, interop, server)
-├── requirements.txt          # Danh sách thư viện
-├── .env.example              # File mẫu chứa API key
-├── ai-usage.md               # Kê khai sử dụng AI minh bạch
-└── README.md                 # Hướng dẫn chạy và kiến trúc
+├── logs/                              # Chứa >= 3 file trace .jsonl chạy thật & bảng eval_summary.csv
+├── Makefile                           # Lệnh chạy tự động (setup, demo, chat, eval, interop, server)
+├── requirements.txt                   # Danh sách thư viện
+├── .env.example                       # File mẫu chứa API key
+├── ai-usage.md                        # Kê khai sử dụng AI minh bạch
+└── README.md                          # Hướng dẫn chạy và kiến trúc
 ```
 
 ---
@@ -110,12 +115,17 @@ cp .env.example .env
 - **Chạy thử Agent demo**:
   ```bash
   make demo
-  # Hoặc: python -m src.agent
+  # Hoặc: python -m src.agent (hoặc python src/agent.py)
+  ```
+- **Trò chuyện trực tiếp với Agent trên Terminal (Interactive Chat)**:
+  ```bash
+  make chat
+  # Hoặc: python -m src.agent --chat
   ```
 - **Chạy bộ kiểm thử 12 câu & Tái lập toàn bộ log + CSV (`logs/eval_summary.csv`)**:
   ```bash
   make eval
-  # Hoặc: python -m src.eval
+  # Hoặc: python -m src.eval (hoặc python src/eval.py)
   ```
 - **Kiểm tra MCP Server từ Client Host thứ hai**:
   ```bash

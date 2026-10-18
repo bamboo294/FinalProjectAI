@@ -12,23 +12,30 @@ Do đó, hệ thống áp dụng Semantic/Structure-based Chunking cắt theo ti
 
 import os
 import re
+import sys
 import unicodedata
 from pathlib import Path
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Union
 import numpy as np
 from rank_bm25 import BM25Okapi
 from dotenv import load_dotenv
 
-from src.schemas import DocumentChunk, DocumentMetadata
+_ROOT = Path(__file__).resolve().parent.parent
+if str(_ROOT) not in sys.path:
+    sys.path.insert(0, str(_ROOT))
 
-load_dotenv()
+from src.schemas import DATA_DIR, PROJECT_ROOT, DocumentChunk, DocumentMetadata
+
+load_dotenv(PROJECT_ROOT / ".env")
 
 
 class CreditTransferRAG:
     """Pipeline tìm kiếm quy chế hỗ trợ Dense, BM25 và Hybrid Search kèm Metadata Filter."""
 
-    def __init__(self, data_dir: str = "data", use_api_embedding: bool = False):
+    def __init__(self, data_dir: Union[str, Path] = DATA_DIR, use_api_embedding: bool = False):
         self.data_dir = Path(data_dir)
+        if not self.data_dir.is_absolute():
+            self.data_dir = PROJECT_ROOT / self.data_dir
         self.use_api_embedding = use_api_embedding and bool(os.getenv("OPENAI_API_KEY"))
         self.chunks: List[DocumentChunk] = []
         self.bm25: Optional[BM25Okapi] = None

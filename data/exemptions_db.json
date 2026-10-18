@@ -18,7 +18,7 @@
       "status": "PENDING_REVIEW",
       "created_at": "2026-10-18T01:05:47.790461",
       "notes": "Xét duyệt tự động theo quy chế DOC0008 & DOC0010 v2.0",
-      "updated_at": "2026-10-18T01:05:48.399131"
+      "updated_at": "2026-10-19T00:22:15.051854"
     },
     "REQ-2026-002": {
       "ticket_id": "REQ-2026-002",
@@ -76,7 +76,7 @@
       "status": "PENDING_REVIEW",
       "created_at": "2026-10-18T01:06:22.695018",
       "notes": "Xét duyệt tự động theo quy chế DOC0008 & DOC0010 v2.0",
-      "updated_at": "2026-10-18T01:06:38.573451"
+      "updated_at": "2026-10-19T00:22:48.505032"
     },
     "REQ-2026-005": {
       "ticket_id": "REQ-2026-005",
@@ -99,7 +99,7 @@
       "status": "PENDING_REVIEW",
       "created_at": "2026-10-18T01:06:23.322567",
       "notes": "Xét duyệt tự động theo quy chế DOC0008 & DOC0010 v2.0",
-      "updated_at": "2026-10-18T01:06:39.237321"
+      "updated_at": "2026-10-19T00:22:49.197203"
     }
   }
 }

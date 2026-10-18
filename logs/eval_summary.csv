@@ -5,8 +5,8 @@ Q03,hybrid,basic,True,False,True,False,2,2,1837,171,1329
 Q04,hybrid,basic,True,False,True,False,2,2,1801,236,1294
 Q05,hybrid,complex_transform,True,False,True,False,2,2,1708,244,1193
 Q06,hybrid,complex_capping,True,False,True,False,2,2,1946,254,1414
-Q07,hybrid,action_write_verify,True,False,True,True,4,4,4975,357,1670
-Q08,hybrid,action_capping_verify,True,False,True,True,4,4,4977,410,1675
+Q07,hybrid,action_write_verify,True,False,True,True,4,4,4996,385,1680
+Q08,hybrid,action_capping_verify,True,False,True,True,4,4,4997,438,1685
 Q09,hybrid,no_answer_corpus,True,True,True,False,2,2,1844,201,1334
 Q10,hybrid,no_answer_corpus,True,True,True,False,2,2,1817,166,1310
 Q11,hybrid,no_answer_reasoning,True,True,True,False,2,2,1917,198,1400

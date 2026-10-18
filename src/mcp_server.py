@@ -10,12 +10,15 @@ from pathlib import Path
 from typing import List, Optional
 from mcp.server.fastmcp import FastMCP
 
-from src.schemas import ExemptionRequestInput, ToolExecutionResult
+_ROOT = Path(__file__).resolve().parent.parent
+if str(_ROOT) not in sys.path:
+    sys.path.insert(0, str(_ROOT))
+
+from src.schemas import DB_PATH, ExemptionRequestInput, ToolExecutionResult
 from src.rag import CreditTransferRAG
 
 mcp = FastMCP("CreditTransferAssistantServer")
 rag_engine = CreditTransferRAG()
-DB_PATH = Path("data/exemptions_db.json")
 
 COURSE_CREDITS = {
     "ENG101": 3,

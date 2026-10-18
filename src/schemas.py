@@ -1,5 +1,18 @@
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Optional, List, Dict, Any
+
+# Quản lý tập trung toàn bộ đường dẫn của dự án (neo tuyệt đối theo thư mục gốc)
+PROJECT_ROOT: Path = Path(__file__).resolve().parent.parent
+DATA_DIR: Path = PROJECT_ROOT / "data"
+DB_PATH: Path = DATA_DIR / "exemptions_db.json"
+PROMPTS_DIR: Path = PROJECT_ROOT / "prompts"
+SYSTEM_PROMPT_PATH: Path = PROMPTS_DIR / "system_prompt.txt"
+TESTS_DIR: Path = PROJECT_ROOT / "tests"
+TESTSET_PATH: Path = TESTS_DIR / "testset.jsonl"
+LOGS_DIR: Path = PROJECT_ROOT / "logs"
+DEMO_LOG_PATH: Path = LOGS_DIR / "run_demo_latest.jsonl"
+EVAL_CSV_PATH: Path = LOGS_DIR / "eval_summary.csv"
 
 
 @dataclass

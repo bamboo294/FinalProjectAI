@@ -6,18 +6,25 @@ so sánh Hybrid vs Dense RAG, xuất CSV chi tiết và lưu >= 3 file log chạ
 
 import csv
 import json
-from dataclasses import asdict
+import sys
 from datetime import datetime
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Union
+
+_ROOT = Path(__file__).resolve().parent.parent
+if str(_ROOT) not in sys.path:
+    sys.path.insert(0, str(_ROOT))
 
 from src.agent import CreditTransferAgent, save_traces_to_jsonl
-from src.schemas import RunTrace
+from src.schemas import EVAL_CSV_PATH, LOGS_DIR, PROJECT_ROOT, TESTSET_PATH, RunTrace
 
 
-def load_testset(path: str = "tests/testset.jsonl") -> List[Dict[str, Any]]:
+def load_testset(path: Union[str, Path] = TESTSET_PATH) -> List[Dict[str, Any]]:
+    target_path = Path(path)
+    if not target_path.is_absolute():
+        target_path = PROJECT_ROOT / target_path
     items = []
-    for line in Path(path).read_text(encoding="utf-8").splitlines():
+    for line in target_path.read_text(encoding="utf-8").splitlines():
         if line.strip():
             items.append(json.loads(line))
     return items
@@ -82,8 +89,13 @@ def evaluate_run(mode: str, run_tag: str) -> Dict[str, Any]:
             "max_prompt": trace.usage.max_prompt,
         })
 
+    # Dọn dẹp file log cũ của cùng run_tag để thư mục logs/ luôn gọn gàng
+    LOGS_DIR.mkdir(parents=True, exist_ok=True)
+    for old_log in LOGS_DIR.glob(f"run_{run_tag}_{mode}_*.jsonl"):
+        old_log.unlink(missing_ok=True)
+
     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
-    log_path = Path(f"logs/run_{run_tag}_{mode}_{ts}.jsonl")
+    log_path = LOGS_DIR / f"run_{run_tag}_{mode}_{ts}.jsonl"
     save_traces_to_jsonl(traces, log_path)
 
     return {
@@ -93,7 +105,7 @@ def evaluate_run(mode: str, run_tag: str) -> Dict[str, Any]:
         "correct_rejection_rate": round(no_answer_correct / max(1, no_answer_total) * 100, 2),
         "action_verify_rate": round(action_verified_count / max(1, action_total) * 100, 2),
         "total_tokens": sum(t.usage.total_tokens for t in traces),
-        "log_file": str(log_path),
+        "log_file": str(log_path.relative_to(PROJECT_ROOT)),
         "rows": rows_csv
     }
 
@@ -104,9 +116,8 @@ if __name__ == "__main__":
     res_dense = evaluate_run(mode="dense", run_tag="eval_r2")
     res_hybrid_2 = evaluate_run(mode="hybrid", run_tag="eval_r3")
 
-    csv_path = Path("logs/eval_summary.csv")
-    csv_path.parent.mkdir(parents=True, exist_ok=True)
-    with csv_path.open("w", newline="", encoding="utf-8") as f:
+    EVAL_CSV_PATH.parent.mkdir(parents=True, exist_ok=True)
+    with EVAL_CSV_PATH.open("w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=list(res_hybrid_1["rows"][0].keys()))
         writer.writeheader()
         writer.writerows(res_hybrid_1["rows"])
@@ -117,5 +128,5 @@ if __name__ == "__main__":
     print(f"[2] DENSE MODE : Faithfulness = {res_dense['faithfulness']}% | "
           f"Rejection Rate = {res_dense['correct_rejection_rate']}% | "
           f"Write->Verify = {res_dense['action_verify_rate']}% | Log: {res_dense['log_file']}")
-    print(f"[3] CSV Summary exported to: {csv_path}")
+    print(f"[3] CSV Summary exported to: {EVAL_CSV_PATH.relative_to(PROJECT_ROOT)}")
 
